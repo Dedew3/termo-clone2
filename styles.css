@@ -73,29 +73,14 @@ h1 {
 }
 
 @keyframes pop {
-    0% {
-        transform: scale(0.8);
-    }
-
-    50% {
-        transform: scale(1.1);
-    }
-
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
 @keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 .cell.right {
@@ -220,7 +205,43 @@ h1 {
 }
 
 @media (max-width: 500px) {
-    .cell {
-        font-size: 1.5rem;
-    }
+    .cell { font-size: 1.5rem; }
+}
+
+/* === MODO DARK === */
+body.dark {
+    background-color: #121212;
+    color: #f1f1f1;
+}
+
+body.dark .cell {
+    background-color: #1e1e1e;
+    border-color: #555;
+    color: #f1f1f1;
+}
+
+body.dark .modal-content {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+}
+
+.dark-btn {
+    margin-bottom: 20px;
+    padding: 6px 12px;
+    border: none;
+    background: #444;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+}
+.dark-btn:hover {
+    background: #666;
+}
+
+/* Placar */
+#placar {
+    margin-top: 15px;
+    font-size: 1rem;
+    font-weight: bold;
 }

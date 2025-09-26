@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lista de palavras-alvo (5 letras)
     const words = [
         "ABRIR", "AMIGO", "BANHO", "CAIXA", "DIZER",
-        "FALAR", "GOSTO", "HORAS", "JOGAR", "LIVRO", 
+        "FALAR", "GOSTO", "HORAS", "JOGAR", "LIVRO",
         "NOITE", "OCUPA", "PAPEL", "QUASE",
         "RADIO", "SABER", "TARDE", "UNIDO", "VIVER"
     ];
@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpModal = document.getElementById('help-modal');
     const closeBtn = document.querySelector('.close');
 
+    // Novos elementos para placar e modo dark
+    const darkBtn = document.getElementById('dark-btn');
+    const vitoriasEl = document.getElementById('vitorias');
+    const derrotasEl = document.getElementById('derrotas');
+
     // Variáveis do jogo
     let targetWord = '';
     let currentRow = 0;
@@ -23,13 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let usedLetters = new Set();
     let activeCell = null;
 
+    // Variáveis de placar
+    let vitorias = 0;
+    let derrotas = 0;
+
+    function atualizarPlacar() {
+        const total = vitorias + derrotas;
+        const porcentagem = total > 0 ? ((vitorias / total) * 100).toFixed(1) : 0;
+        vitoriasEl.textContent = `Vitórias: ${vitorias} (${porcentagem}%)`;
+        derrotasEl.textContent = `Derrotas: ${derrotas}`;
+    }
+
+    // Alternar modo dark
+    darkBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+    });
+
     // Inicializar o jogo
     function initGame() {
-        // Selecionar palavra aleatória
         targetWord = words[Math.floor(Math.random() * words.length)];
         console.log("Palavra");
 
-        // Resetar variáveis
         currentRow = 0;
         currentCell = 0;
         gameOver = false;
@@ -37,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         message.textContent = '';
         usedLettersContainer.textContent = '';
 
-        // Criar tabuleiro
         board.innerHTML = '';
         for (let i = 0; i < 6; i++) {
             const row = document.createElement('div');
@@ -49,15 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.dataset.row = i;
                 cell.dataset.cell = j;
 
-                // Adicionar evento de clique
                 cell.addEventListener('click', () => {
                     if (!gameOver && parseInt(cell.dataset.row) === currentRow) {
-                        // Remover ativo de todas as células
-                        document.querySelectorAll('.cell.active').forEach(c => {
-                            c.classList.remove('active');
-                        });
+                        document.querySelectorAll('.cell.active').forEach(c => c.classList.remove('active'));
 
-                        // Se clicar em uma célula preenchida, vai para a próxima vazia
                         if (cell.textContent && j < 4) {
                             const nextCell = row.querySelector(`.cell[data-cell="${j + 1}"]`);
                             nextCell.classList.add('active');
@@ -76,12 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
             board.appendChild(row);
         }
 
-        // Definir primeira célula como ativa
         activeCell = document.querySelector('.cell');
         activeCell.classList.add('active');
     }
 
-    // Manipular pressionamento de tecla
     function handleKeyPress(key) {
         if (gameOver) return;
 
@@ -89,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentRowCells = currentRowElement ? Array.from(currentRowElement.querySelectorAll('.cell')) : [];
 
         if (key === 'Enter') {
-            // Verificar se todas as células estão preenchidas
             const allFilled = currentRowCells.every(cell => cell.textContent);
             if (allFilled) {
                 checkGuess();
@@ -99,16 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (key === 'Backspace') {
             if (activeCell && activeCell.textContent) {
-                // Apagar conteúdo da célula ativa
                 activeCell.textContent = '';
                 activeCell.classList.remove('filled');
             } else if (currentCell > 0) {
-                // Mover para célula anterior
                 currentCell--;
                 activeCell = currentRowCells[currentCell];
                 activeCell.classList.add('active');
-
-                // Apagar conteúdo se houver
                 if (activeCell.textContent) {
                     activeCell.textContent = '';
                     activeCell.classList.remove('filled');
@@ -118,8 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeCell) {
                 activeCell.textContent = key.toUpperCase();
                 activeCell.classList.add('filled');
-
-                // Mover para próxima célula se não for a última
                 if (currentCell < 4) {
                     activeCell.classList.remove('active');
                     currentCell++;
@@ -130,90 +134,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Verificar o palpite
     function checkGuess() {
         const currentRowElement = document.querySelector(`.row[data-row="${currentRow}"]`);
         const currentRowCells = currentRowElement.querySelectorAll('.cell');
         let guess = '';
 
-        // Obter a palavra do palpite
-        currentRowCells.forEach(cell => {
-            guess += cell.textContent;
-        });
+        currentRowCells.forEach(cell => { guess += cell.textContent; });
 
-        // Verificar se tem exatamente 5 letras
         if (guess.length !== 5) {
             message.textContent = "A palavra deve ter 5 letras!";
             shakeRow(currentRow);
             return;
         }
 
-        // Verificar letras
         const targetLetters = targetWord.split('');
         const guessLetters = guess.split('');
         const result = Array(5).fill('');
 
-        // Primeiro passada: marcar letras corretas
         for (let i = 0; i < 5; i++) {
             if (guessLetters[i] === targetLetters[i]) {
                 result[i] = 'right';
-                targetLetters[i] = null; // Marcar como já encontrada
+                targetLetters[i] = null;
             }
         }
 
-        // Segunda passada: marcar letras em posições erradas
         for (let i = 0; i < 5; i++) {
             if (result[i] === 'right') continue;
-
             const index = targetLetters.indexOf(guessLetters[i]);
             if (index !== -1) {
                 result[i] = 'place';
-                targetLetters[index] = null; // Marcar como já encontrada
+                targetLetters[index] = null;
             } else {
                 result[i] = 'wrong';
                 usedLetters.add(guessLetters[i]);
             }
         }
 
-        // Atualizar células
         for (let i = 0; i < 5; i++) {
             currentRowCells[i].classList.add(result[i]);
         }
 
-        // Atualizar letras usadas
         updateUsedLetters();
 
-        // Verificar vitória
         if (guess === targetWord) {
             message.textContent = "Acertou!";
+            vitorias++;            // Incrementa vitórias
+            atualizarPlacar();      // Atualiza placar
             gameOver = true;
-            setTimeout(() => {
-                initGame();
-            }, 2000);
+            setTimeout(() => { initGame(); }, 2000);
             return;
         }
 
-        // Avançar para a próxima linha
         currentRow++;
         currentCell = 0;
 
-        // Definir primeira célula da nova linha como ativa
         if (currentRow < 6) {
             activeCell = document.querySelector(`.row[data-row="${currentRow}"] .cell`);
             activeCell.classList.add('active');
         }
 
-        // Verificar fim de jogo
         if (currentRow === 6) {
             message.textContent = `Tente novamente! A palavra era ${targetWord}`;
+            derrotas++;            // Incrementa derrotas
+            atualizarPlacar();      // Atualiza placar
             gameOver = true;
-            setTimeout(() => {
-                initGame();
-            }, 2000);
+            setTimeout(() => { initGame(); }, 2000);
         }
     }
 
-    // Atualizar display de letras usadas
     function updateUsedLetters() {
         if (usedLetters.size > 0) {
             usedLettersContainer.textContent = 'Letras não usadas: ' +
@@ -221,19 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Animação de erro (tremer linha)
     function shakeRow(row) {
         const rowElement = document.querySelector(`.row[data-row="${row}"]`);
         rowElement.style.animation = 'shake 0.5s';
-
-        setTimeout(() => {
-            rowElement.style.animation = '';
-        }, 500);
+        setTimeout(() => { rowElement.style.animation = ''; }, 500);
     }
 
-    // Event listeners
     document.addEventListener('keydown', (e) => {
-        e.preventDefault(); // Prevenir comportamento padrão
+        e.preventDefault();
         handleKeyPress(e.key);
     });
 
@@ -252,6 +235,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Iniciar o jogo
     initGame();
 });

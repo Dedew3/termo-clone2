@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,12 +9,22 @@
 
 <body>
     <div class="container">
+
+        <!-- Botão para alternar modo dark -->
+        <button id="dark-btn" class="dark-btn">🌙 Modo Dark</button>
+
         <h1>Termo Clone</h1>
 
         <div class="game-container">
             <div id="board" class="board"></div>
             <div id="message" class="message"></div>
             <div id="used-letters" class="used-letters"></div>
+
+            <!-- Placar de vitórias e derrotas -->
+            <div id="placar">
+                <p id="vitorias">Vitórias: 0 (0%)</p>
+                <p id="derrotas">Derrotas: 0</p>
+            </div>
         </div>
 
         <button id="help-btn" class="help-btn">?</button>
@@ -61,5 +70,4 @@
 
     <script src="script.js"></script>
 </body>
-
 </html>
